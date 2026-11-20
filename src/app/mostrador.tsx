@@ -90,48 +90,56 @@ export default function PantallaMostrador() {
           descripcion="Todas las solicitudes fueron atendidas o los libros cuentan con ejemplares suficientes."
         />
       ) : (
-        librosConEspera.map(({ libro, cola, quienEstaAlFrente, cuantosEsperan }) => (
-          <View key={libro.isbn} style={estilos.tarjetaLibro}>
-            <View style={estilos.cabeceraTarjeta}>
-              <View style={estilos.infoLibro}>
-                <Text style={estilos.tituloLibro}>{libro.titulo}</Text>
-                <Text style={estilos.autorLibro}>{libro.autor}</Text>
-                <Text style={estilos.isbnLibro}>ISBN: {libro.isbn}</Text>
+        librosConEspera.map(({ libro, cola, quienEstaAlFrente, cuantosEsperan }) => {
+          const disponibles = obtenerEjemplaresDisponibles(libro.isbn);
+          return (
+            <View key={libro.isbn} style={estilos.tarjetaLibro}>
+              <View style={estilos.cabeceraTarjeta}>
+                <View style={estilos.infoLibro}>
+                  <Text style={estilos.tituloLibro}>{libro.titulo}</Text>
+                  <Text style={estilos.autorLibro}>{libro.autor}</Text>
+                  <Text style={estilos.isbnLibro}>ISBN: {libro.isbn}</Text>
+                </View>
+
+                <View style={estilos.badgeCantidad}>
+                  <Text style={estilos.textoBadgeCantidad}>
+                    {cuantosEsperan} {cuantosEsperan === 1 ? 'en espera' : 'en espera'}
+                  </Text>
+                </View>
+                <View style={estilos.infoAdicional}>
+                  <Text style={estilos.textoInfoAdicional}>
+                    {disponibles} {disponibles === 1 ? 'ejemplar disponible' : 'ejemplares disponibles'}
+                  </Text>
+                </View>
               </View>
 
-              <View style={estilos.badgeCantidad}>
-                <Text style={estilos.textoBadgeCantidad}>
-                  {cuantosEsperan} {cuantosEsperan === 1 ? 'en espera' : 'en espera'}
+              <View style={estilos.cajaFrente}>
+                <Text style={estilos.etiquetaFrente}>
+                  Siguiente persona al frente de la cola:
                 </Text>
+                <Text style={estilos.nombreFrente}>
+                  👤 {quienEstaAlFrente || 'Sin solicitantes'}
+                </Text>
+                {cola.length > 1 && (
+                  <Text style={estilos.restoCola}>
+                    Detrás esperan: {cola.slice(1).join(', ')}
+                  </Text>
+                )}
+              </View>
+
+              <View style={estilos.accionesTarjeta}>
+                <Boton
+                  titulo="Entregar al siguiente"
+                  variante="primario"
+                  onPress={() =>
+                    manejarEntrega(libro.isbn, libro.titulo, quienEstaAlFrente)
+                  }
+                  deshabilitado={!quienEstaAlFrente}
+                />
               </View>
             </View>
-
-            <View style={estilos.cajaFrente}>
-              <Text style={estilos.etiquetaFrente}>
-                Siguiente persona al frente de la cola:
-              </Text>
-              <Text style={estilos.nombreFrente}>
-                👤 {quienEstaAlFrente || 'Sin solicitantes'}
-              </Text>
-              {cola.length > 1 && (
-                <Text style={estilos.restoCola}>
-                  Detrás esperan: {cola.slice(1).join(', ')}
-                </Text>
-              )}
-            </View>
-
-            <View style={estilos.accionesTarjeta}>
-              <Boton
-                titulo="Entregar al siguiente"
-                variante="primario"
-                onPress={() =>
-                  manejarEntrega(libro.isbn, libro.titulo, quienEstaAlFrente)
-                }
-                deshabilitado={!quienEstaAlFrente}
-              />
-            </View>
-          </View>
-        ))
+          );
+        })
       )}
     </ScrollView>
   );
@@ -219,6 +227,16 @@ const estilos = StyleSheet.create({
     fontSize: TEMA.tipografia.xs,
     fontWeight: 'bold',
     color: TEMA.colores.advertencia,
+  },
+  infoAdicional: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginTop: TEMA.espaciados.xs,
+  },
+  textoInfoAdicional: {
+    fontSize: TEMA.tipografia.xs,
+    color: TEMA.colores.textoSecundario,
+    marginLeft: TEMA.espaciados.xs,
   },
   cajaFrente: {
     backgroundColor: TEMA.colores.fondo,
