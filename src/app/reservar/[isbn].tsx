@@ -38,6 +38,7 @@ export default function PantallaReservarConfirmacion() {
   const personasEnEspera = obtenerPersonasEnEspera(libro.isbn);
   const yaSolicitado = estaPrestadoOReservado(libro.isbn);
   const esPrestamoInmediato = disponibles > 0;
+  const posicionCola = personasEnEspera + 1;
 
   const manejarConfirmar = () => {
     const resultado = reservarLibro(libro.isbn);
@@ -54,30 +55,36 @@ export default function PantallaReservarConfirmacion() {
         <View
           style={[
             estilos.iconoCirculo,
-            esPrestamoInmediato
-              ? estilos.iconoCirculoExito
-              : estilos.iconoCirculoEspera,
+            esPrestamoInmediato ? estilos.iconoCirculoExito : estilos.iconoCirculoEspera,
           ]}
         >
           <Ionicons
             name={esPrestamoInmediato ? 'calendar-outline' : 'people-outline'}
             size={44}
             color={
-              esPrestamoInmediato
-                ? TEMA.colores.exito
-                : TEMA.colores.advertencia
+              esPrestamoInmediato ? TEMA.colores.exito : TEMA.colores.advertencia
             }
           />
         </View>
 
         <Text style={estilos.titulo}>
-          {esPrestamoInmediato
-            ? 'Confirmar Préstamo'
-            : 'Unirse a Lista de Espera'}
+          {esPrestamoInmediato ? 'Confirmar Préstamo' : 'Unirse a Lista de Espera'}
         </Text>
 
         <Text style={estilos.nombreLibro}>{libro.titulo}</Text>
         <Text style={estilos.autorLibro}>{libro.autor}</Text>
+
+        <Text style={estilos.textoAdicional}>
+          {disponibles > 0
+            ? `Disponibles: ${disponibles} ${disponibles === 1 ? 'ejemplar' : 'ejemplares'}`
+            : 'Sin ejemplares disponibles - Lista de espera'}
+        </Text>
+
+        {disponibles === 0 && (
+          <Text style={estilos.textoAdicional}>
+            Posición en cola: #{posicionCola}
+          </Text>
+        )}
 
         <View style={estilos.cajaDetalle}>
           {esPrestamoInmediato ? (
@@ -103,7 +110,7 @@ export default function PantallaReservarConfirmacion() {
               </Text>
               <Text style={estilos.textoDetalle}>
                 • Ingresarás a la cola en la posición:{' '}
-                <Text style={estilos.negrita}>#{personasEnEspera + 1}</Text>.
+                <Text style={estilos.negrita}>#{posicionCola}</Text>.
               </Text>
               <Text style={estilos.textoDetalle}>
                 • Se te notificará cuando se devuelva un ejemplar y llegue tu
@@ -128,9 +135,7 @@ export default function PantallaReservarConfirmacion() {
           <View style={estilos.acciones}>
             <Boton
               titulo={
-                esPrestamoInmediato
-                  ? 'Confirmar Préstamo'
-                  : 'Confirmar e Ingresar a Espera'
+                esPrestamoInmediato ? 'Confirmar Préstamo' : 'Confirmar e Ingresar a Espera'
               }
               onPress={manejarConfirmar}
               variante={esPrestamoInmediato ? 'primario' : 'secundario'}
@@ -199,15 +204,6 @@ const estilos = StyleSheet.create({
     marginBottom: TEMA.espaciados.lg,
     textAlign: 'center',
   },
-  cajaDetalle: {
-    backgroundColor: TEMA.colores.fondo,
-    borderRadius: TEMA.bordes.md,
-    padding: TEMA.espaciados.md,
-    width: '100%',
-    marginBottom: TEMA.espaciados.xl,
-    borderWidth: 1,
-    borderColor: TEMA.colores.borde,
-  },
   textoDetalle: {
     fontSize: TEMA.tipografia.sm,
     color: TEMA.colores.texto,
@@ -233,5 +229,10 @@ const estilos = StyleSheet.create({
     fontSize: TEMA.tipografia.sm,
     textAlign: 'center',
     fontWeight: '600',
+  },
+  textoAdicional: {
+    fontSize: TEMA.tipografia.xs,
+    color: TEMA.colores.textoSecundario,
+    marginBottom: TEMA.espaciados.xs,
   },
 });
