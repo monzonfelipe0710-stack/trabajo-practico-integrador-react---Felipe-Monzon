@@ -7,6 +7,7 @@ interface TarjetaLibroProps {
   libro: Libro;
   ejemplaresDisponibles: number;
   personasEnEspera: number;
+  estadoPrestado?: boolean;
   onPress: () => void;
 }
 
@@ -14,14 +15,35 @@ export function TarjetaLibro({
   libro,
   ejemplaresDisponibles,
   personasEnEspera,
+  estadoPrestado,
   onPress,
 }: TarjetaLibroProps) {
   const tieneStock = ejemplaresDisponibles > 0;
 
+  const labelEstado = estadoPrestado
+    ? `${personasEnEspera} en espera`
+    : `${ejemplaresDisponibles} ${ejemplaresDisponibles === 1 ? 'disponible' : 'disponibles'}`;
+
+  const badgeBackground = estadoPrestado
+    ? TEMA.colores.advertenciaFondo
+    : TEMA.colores.exitoFondo;
+
+  const badgeTextColor = estadoPrestado
+    ? TEMA.colores.advertencia
+    : TEMA.colores.exito;
+
+  const badgeStyle = estadoPrestado
+    ? estilos.badgeEspera
+    : estilos.badgeDisponible;
+
+  const badgeTextStyle = estadoPrestado
+    ? estilos.textoBadgeEspera
+    : estilos.textoBadgeDisponible;
+
   return (
     <Pressable
       accessibilityRole="button"
-      accessibilityLabel={`Libro ${libro.titulo}, autor ${libro.autor}. ${tieneStock ? `${ejemplaresDisponibles} ejemplares disponibles` : `Sin stock, ${personasEnEspera} en espera`}`}
+      accessibilityLabel={`Libro ${libro.titulo}, autor ${libro.autor}. ${labelEstado}`}
       onPress={onPress}
       style={({ pressed }) => [
         estilos.tarjeta,
@@ -39,21 +61,11 @@ export function TarjetaLibro({
       </View>
 
       <View style={estilos.estadoContenedor}>
-        {tieneStock ? (
-          <View style={estilos.badgeDisponible}>
-            <Text style={estilos.textoBadgeDisponible}>
-              {ejemplaresDisponibles}{' '}
-              {ejemplaresDisponibles === 1 ? 'disponible' : 'disponibles'}
-            </Text>
-          </View>
-        ) : (
-          <View style={estilos.badgeEspera}>
-            <Text style={estilos.textoBadgeEspera}>
-              {personasEnEspera}{' '}
-              {personasEnEspera === 1 ? 'en espera' : 'en espera'}
-            </Text>
-          </View>
-        )}
+        <View style={badgeStyle}>
+          <Text style={badgeTextStyle}>
+            {labelEstado}
+          </Text>
+        </View>
       </View>
     </Pressable>
   );

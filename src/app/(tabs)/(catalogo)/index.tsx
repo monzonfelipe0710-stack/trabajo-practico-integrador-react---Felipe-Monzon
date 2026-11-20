@@ -79,6 +79,7 @@ export default function PantallaCatalogo() {
 
   const renderItem: ListRenderItem<Libro> = ({ item }) => {
     const disponibles = obtenerEjemplaresDisponibles(item.isbn);
+    const estaPrestado = disponibles === 0;
     const espera = obtenerPersonasEnEspera(item.isbn);
     return (
       <TarjetaLibro
@@ -86,6 +87,7 @@ export default function PantallaCatalogo() {
         ejemplaresDisponibles={disponibles}
         personasEnEspera={espera}
         onPress={() => navegarADetalle(item.isbn)}
+        estadoPrestado={estaPrestado}
       />
     );
   };
