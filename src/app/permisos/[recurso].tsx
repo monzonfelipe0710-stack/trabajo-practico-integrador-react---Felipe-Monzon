@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, Text, StyleSheet, Linking } from 'react-native';
+import { View, Text, StyleSheet, Linking, Keyboard } from 'react-native';
 import { useLocalSearchParams, router } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { usePermiso, type TipoRecurso } from '../../hooks/usePermiso';
@@ -11,8 +11,9 @@ export default function PantallaPermisoRecurso() {
   const tipoRecurso: TipoRecurso =
     recurso === 'notificaciones' ? 'notificaciones' : 'camara';
 
-  const { estado, esBloqueado, esConcedido, pedirPermiso } =
-    usePermiso(tipoRecurso);
+  const { estado, esBloqueado, esConcedido, pedirPermiso } = usePermiso(
+    tipoRecurso,
+  );
 
   const esCamara = tipoRecurso === 'camara';
 
@@ -22,7 +23,7 @@ export default function PantallaPermisoRecurso() {
 
   const beneficio = esCamara
     ? 'Usamos tu cámara para escanear el código de barras de los libros de forma rápida.'
-    : 'Usamos tus notificaciones para recordarte la fecha límite de devolución de tus libros prestados.';
+    : 'Usamos tus notificaciones para recordarte la fecha límite de devolución de tus libros prestados';
 
   // Línea clave evaluada en D1 b): decisión entre "Abrir Ajustes" o "Continuar"
   const textoBoton = esBloqueado ? 'Abrir Ajustes' : 'Continuar';
@@ -42,6 +43,18 @@ export default function PantallaPermisoRecurso() {
       }
     } else {
       router.back();
+    }
+  };
+
+  const manejarReiniciarPermiso = async () => {
+    // Solicitar el permiso nuevamente para restablecer el estado
+    const resultado = await pedirPermiso();
+    if (resultado?.granted) {
+      if (esCamara) {
+        router.replace('/escanear');
+      } else {
+        router.back();
+      }
     }
   };
 
@@ -77,6 +90,14 @@ export default function PantallaPermisoRecurso() {
           />
 
           <View style={estilos.espaciador} />
+
+          {esBloqueado && (
+            <Boton
+              titulo="Reiniciar solicitud de permiso"
+              onPress={manejarReiniciarPermiso}
+              variante="borde"
+            />
+          )}
 
           <Boton
             titulo="Ahora no"
