@@ -77,12 +77,14 @@ export default function PantallaBuscar() {
 
   const renderItem: ListRenderItem<Libro> = ({ item }) => {
     const disponibles = obtenerEjemplaresDisponibles(item.isbn);
+    const estaPrestado = disponibles === 0;
     const espera = obtenerPersonasEnEspera(item.isbn);
     return (
       <TarjetaLibro
         libro={item}
         ejemplaresDisponibles={disponibles}
         personasEnEspera={espera}
+        estadoPrestado={estaPrestado}
         onPress={() => router.push(`/libro/${item.isbn}`)}
       />
     );
