@@ -20,6 +20,7 @@ export default function PantallaMostrador() {
     cerrarSesion,
     obtenerColaLibro,
     entregarAlSiguiente,
+    obtenerEjemplaresDisponibles,
   } = useBiblioteca();
 
   // Filtrar los libros que tienen lista de espera activa
